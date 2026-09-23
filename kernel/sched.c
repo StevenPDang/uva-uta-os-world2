@@ -137,7 +137,7 @@ void schedule() {
 		if (max_cr > 0) {
             I("cpu%d picked pid %d state %s credits %ld", cpu, next, 
                 states[task[next]->state], p->credits);
-switch_to(0); /* STUDENT: TODO: replace this */
+			switch_to(task[next]);
 			break;
         }
 
@@ -157,7 +157,7 @@ switch_to(0); /* STUDENT: TODO: replace this */
             procdump(); 
             #endif
             /* if cpu already on idle task, this will do nothing */
-switch_to(0); /* STUDENT: TODO: replace this */
+			switch_to(idle_tasks[cpu]);
             break;
         }
 	}
@@ -223,7 +223,7 @@ void switch_to(struct task_struct * next) {
     */
 
     /* below: cpu_switch_to() in switch.S. it will branch to next->cpu_context.pc */
-cpu_switch_to(0, 0); /* STUDENT: TODO: replace this */
+	cpu_switch_to(prev, next);
 }
 
 #define CPU_UTIL_INTERVAL 10  // cal cpu measurement every X ticks
@@ -593,7 +593,8 @@ int copy_process(unsigned long clone_flags, unsigned long fn, unsigned long arg,
     acquire(&cur->lock);	
 
     // load fn/arg to cpu context. cf ret_from_fork
-    /* STUDENT: TODO: your code here */
+    p->cpu_context.x19 = fn;
+    p->cpu_context.x20 = arg;
 
     // also inherit task name
     if (name)
@@ -609,7 +610,8 @@ int copy_process(unsigned long clone_flags, unsigned long fn, unsigned long arg,
 
     // prep new task's scheduler context: assign values to the pc/sp of new
     // task's cpu_context
-	/* STUDENT: TODO: your code here */
+	p->cpu_context.pc = (unsigned long)ret_from_fork;
+	p->cpu_context.sp = (unsigned long)p + THREAD_SIZE;
 	
     release(&cur->lock);
 	release(&p->lock);
@@ -617,7 +619,7 @@ int copy_process(unsigned long clone_flags, unsigned long fn, unsigned long arg,
  	p->parent = cur;
 	// the last thing: change the task's state so that the scheduler can pick up
     // the task to run in the future
-	/* STUDENT: TODO: your code here */
+	p->state = TASK_RUNNABLE;
 	
 	release(&sched_lock);
 
