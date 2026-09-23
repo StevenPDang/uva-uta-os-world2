@@ -68,9 +68,9 @@ el1_entry:
 	
 setup_sp: 	
 	// Q1: quest: boot. Set sp to be at the end (or top) of the bootstack (cpu0)
-	/* STUDENT: TODO: your code here */
 	ldr x1, =boot_stacks	// sched.c		
-	/* STUDENT: TODO: your code here */
+	add x1, x1, #PAGE_SIZE
+	mov sp, x1
 	// NB: we aren't use sp yet -- until we call a C function for the 1st time
 
 	// install irq vectors
